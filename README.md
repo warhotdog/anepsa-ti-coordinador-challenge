@@ -29,9 +29,15 @@ python -m pip install -r requirements.txt
 python -m pytest
 ```
 
-## Healthcheck
+## Ejecutar Scripts
 
 ```bash
-python healthcheck.py --endpoint http://localhost:3000/health --once
 python healthcheck.py --self-test
+python sprint_report.py
+```
+
+## Comando Unico De Verificacion
+
+```bash
+python -m pytest && python healthcheck.py --self-test && python sprint_report.py
 ```
