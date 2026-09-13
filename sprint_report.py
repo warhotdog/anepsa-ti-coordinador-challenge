@@ -1,12 +1,16 @@
 import argparse
 import json
 from collections import defaultdict
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 
+REQUIRED_FIELDS = {"id", "titulo", "responsable", "estado", "story_points", "fecha_limite", "ultima_actualizacion"}
 DONE_STATES = {"Hecho", "Done", "Completado"}
+OVERLOAD_ABOVE_AVERAGE_RATIO = 1.35
+OVERLOAD_ABSOLUTE_SP = 13
+UNDERLOAD_BELOW_AVERAGE_RATIO = 0.65
 
 
 def sample_tasks(today: date | None = None) -> list[dict[str, Any]]:
@@ -35,22 +39,47 @@ def ensure_data_file(path: Path) -> None:
         path.write_text(json.dumps(sample_tasks(), indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def parse_date(value: str, field: str, task_id: str) -> date:
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError as exc:
+        raise ValueError(f"{task_id}: {field} debe tener formato YYYY-MM-DD") from exc
+
+
 def load_tasks(path: Path) -> list[dict[str, Any]]:
     ensure_data_file(path)
-    return json.loads(path.read_text(encoding="utf-8"))
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"JSON malformado en {path}: {exc}") from exc
+    if not isinstance(data, list):
+        raise ValueError("sprint_data.json debe contener una lista de tareas")
+    return data
 
 
-def analyze(tasks: list[dict[str, Any]]) -> dict[str, Any]:
+def analyze(tasks: list[dict[str, Any]], today: date | None = None) -> dict[str, Any]:
+    current = today or date.today()
     committed = sum(task["story_points"] for task in tasks)
     completed = sum(task["story_points"] for task in tasks if task["estado"] in DONE_STATES)
+    risks = []
     load = defaultdict(lambda: {"assigned": 0, "completed": 0, "count": 0})
     for task in tasks:
-        owner = task["responsable"]
         points = task["story_points"]
+        owner = task["responsable"]
+        done = task["estado"] in DONE_STATES
+        due = parse_date(task["fecha_limite"], "fecha_limite", task["id"])
+        updated = parse_date(task["ultima_actualizacion"], "ultima_actualizacion", task["id"])
         load[owner]["assigned"] += points
-        load[owner]["completed"] += points if task["estado"] in DONE_STATES else 0
+        load[owner]["completed"] += points if done else 0
         load[owner]["count"] += 1
-    return {"committed": committed, "completed": completed, "velocity_pct": round((completed / committed) * 100, 1) if committed else 0, "load": dict(load)}
+        reasons = []
+        if not done and due < current:
+            reasons.append("vencida")
+        if not done and (current - updated).days > 3:
+            reasons.append("sin movimiento >3 dias")
+        if reasons:
+            risks.append({"id": task["id"], "titulo": task["titulo"], "responsable": owner, "story_points": points, "motivo": ", ".join(reasons)})
+    return {"committed": committed, "completed": completed, "velocity_pct": round((completed / committed) * 100, 1) if committed else 0, "risks": risks, "load": dict(load)}
 
 
 def main() -> int:
