@@ -1,5 +1,8 @@
+import json
 from datetime import date
 from pathlib import Path
+
+import pytest
 
 import sprint_report
 
@@ -25,3 +28,19 @@ def test_analyze_calculates_velocity_risks_and_load() -> None:
     assert result["velocity_pct"] == 50.0
     assert len(result["risks"]) == 2
     assert result["load"]["Dev"]["assigned"] == 8
+
+
+def test_load_tasks_rejects_malformed_json(tmp_path: Path) -> None:
+    data_file = tmp_path / "bad.json"
+    data_file.write_text("{not-json", encoding="utf-8")
+    with pytest.raises(ValueError, match="JSON malformado"):
+        sprint_report.load_tasks(data_file)
+
+
+def test_load_tasks_sanitizes_missing_non_critical_fields(tmp_path: Path) -> None:
+    data_file = tmp_path / "missing.json"
+    data_file.write_text(json.dumps([{"id": "A", "story_points": "5"}, {"id": "B", "story_points": None}]), encoding="utf-8")
+    tasks = sprint_report.load_tasks(data_file)
+    assert tasks[0]["story_points"] == 5
+    assert tasks[0]["titulo"] == "Sin titulo"
+    assert tasks[1]["story_points"] == 0
