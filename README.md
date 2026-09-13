@@ -1,3 +1,30 @@
 # ANEPSA TI Coordinador Challenge
 
-Repositorio de evidencia tecnica para la evaluacion de Coordinador de Area de TI.
+## Codigo De Verificacion
+
+CTI-EVAL-2026
+
+## Objetivo
+
+Repositorio publico para la evaluacion tecnica de Coordinador de Area de TI.
+
+Incluye los ejercicios obligatorios del Caso 2 y la evidencia tecnica requerida por el Caso 8.
+
+## Contenido
+
+- `healthcheck.py`: monitoreo de endpoint HTTP con reintentos, reinicio simulado, logging y notificacion simulada.
+- `sprint_report.py`: reporte ejecutivo de sprint generado desde `sprint_data.json`.
+- `tests/`: pruebas basicas automatizadas.
+- `.github/workflows/ci.yml`: pipeline de CI en GitHub Actions.
+
+## Instalacion
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+## Ejecutar Pruebas
+
+```bash
+python -m pytest
+```
