@@ -1,5 +1,7 @@
 # ANEPSA TI Coordinador Challenge
 
+[![CI](https://github.com/warhotdog/anepsa-ti-coordinador-challenge/actions/workflows/ci.yml/badge.svg)](https://github.com/warhotdog/anepsa-ti-coordinador-challenge/actions/workflows/ci.yml)
+
 ## Codigo De Verificacion
 
 CTI-EVAL-2026
@@ -16,6 +18,14 @@ Incluye los ejercicios obligatorios del Caso 2 y la evidencia tecnica requerida 
 - `sprint_report.py`: reporte ejecutivo de sprint generado desde `sprint_data.json`.
 - `tests/`: pruebas basicas automatizadas.
 - `.github/workflows/ci.yml`: pipeline de CI en GitHub Actions.
+
+## Tablero Jira
+
+URL Jira prevista para entrega final:
+
+```text
+https://dsuzan.atlassian.net/jira/software/projects/SCRUM/boards/1
+```
 
 ## Instalacion
 
