@@ -1,8 +1,12 @@
 import argparse
 import json
+from collections import defaultdict
 from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
+
+
+DONE_STATES = {"Hecho", "Done", "Completado"}
 
 
 def sample_tasks(today: date | None = None) -> list[dict[str, Any]]:
@@ -31,12 +35,29 @@ def ensure_data_file(path: Path) -> None:
         path.write_text(json.dumps(sample_tasks(), indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def load_tasks(path: Path) -> list[dict[str, Any]]:
+    ensure_data_file(path)
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def analyze(tasks: list[dict[str, Any]]) -> dict[str, Any]:
+    committed = sum(task["story_points"] for task in tasks)
+    completed = sum(task["story_points"] for task in tasks if task["estado"] in DONE_STATES)
+    load = defaultdict(lambda: {"assigned": 0, "completed": 0, "count": 0})
+    for task in tasks:
+        owner = task["responsable"]
+        points = task["story_points"]
+        load[owner]["assigned"] += points
+        load[owner]["completed"] += points if task["estado"] in DONE_STATES else 0
+        load[owner]["count"] += 1
+    return {"committed": committed, "completed": completed, "velocity_pct": round((completed / committed) * 100, 1) if committed else 0, "load": dict(load)}
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Genera datos de sprint")
+    parser = argparse.ArgumentParser(description="Genera reporte de sprint")
     parser.add_argument("--data", default="sprint_data.json")
     args = parser.parse_args()
-    ensure_data_file(Path(args.data))
-    print(f"Datos listos en {args.data}")
+    print(json.dumps(analyze(load_tasks(Path(args.data))), indent=2, ensure_ascii=False))
     return 0
 
 
