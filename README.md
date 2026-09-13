@@ -28,3 +28,10 @@ python -m pip install -r requirements.txt
 ```bash
 python -m pytest
 ```
+
+## Healthcheck
+
+```bash
+python healthcheck.py --endpoint http://localhost:3000/health --once
+python healthcheck.py --self-test
+```
