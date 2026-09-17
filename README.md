@@ -27,6 +27,12 @@ URL Jira prevista para entrega final:
 https://dsuzan.atlassian.net/jira/software/projects/ANEPSA/boards/1
 ```
 
+## Evidencia
+
+- Tablero Jira Scrum: https://dsuzan.atlassian.net/jira/software/projects/ANEPSA/boards/1?filter=&groupBy=none
+- Pipeline CI: https://github.com/warhotdog/anepsa-ti-coordinador-challenge/actions/workflows/ci.yml
+- Repositorio GitHub: https://github.com/warhotdog/anepsa-ti-coordinador-challenge
+
 ## Instalacion
 
 ```bash
