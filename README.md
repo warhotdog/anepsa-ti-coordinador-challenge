@@ -24,7 +24,7 @@ Incluye los ejercicios obligatorios del Caso 2 y la evidencia tecnica requerida 
 URL Jira prevista para entrega final:
 
 ```text
-https://dsuzan.atlassian.net/jira/software/projects/SCRUM/boards/1
+https://dsuzan.atlassian.net/jira/software/projects/ANEPSA/boards/1
 ```
 
 ## Instalacion
